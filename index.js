@@ -6,7 +6,7 @@ import { run } from "./model";
 
 app.get("/", (req, res) => {
   console.log({ req });
-  res.send("Hello World!");
+  res.send("Hello World");
 });
 
 app.listen(port, () => {
