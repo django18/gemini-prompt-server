@@ -1,18 +1,22 @@
-require("dotenv").config();
-const express = require("express");
+import dotenv from "dotenv/config";
+import express from "express";
 const app = express();
-const bodyParser = require("body-parser");
+
+import bodyParser from "body-parser";
 const port = process.env.DEV_PORT;
-var cors = require("cors");
-const model = require("./model");
+
+import cors from "cors";
+import model from "./model.js";
+import { fetchImagesForItinerary } from "./places.js";
 
 app.use(cors());
 app.use(bodyParser.json());
 
 app.post("/prompt", async (request, response) => {
-  const { prompt } = request.body;
-  const text = await model.run(prompt);
-  response.send({ result: text });
+  const promptRequest = request.body;
+  const text = await model.run(promptRequest);
+  const finalResponse = await fetchImagesForItinerary(JSON.parse(text));
+  response.send({ response: JSON.stringify(finalResponse) });
 });
 
 app.listen(port, () => {
