@@ -3,7 +3,7 @@ import express from "express";
 const app = express();
 
 import bodyParser from "body-parser";
-const port = process.env.DEV_PORT;
+const port = process.env.PORT;
 
 import cors from "cors";
 import { queryGPT } from "./model.js";
