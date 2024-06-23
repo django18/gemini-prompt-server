@@ -50,6 +50,10 @@ const searchForImages = async (query) => {
 
 export const fetchImagesForItinerary = async (itinerary) => {
   const promises = [];
+  const { travelDestination } = itinerary.query;
+
+  const coverImage = await searchForImages(travelDestination);
+  itinerary.cover = coverImage;
 
   itinerary.days.map((day) => {
     for (const activity of day.activities) {

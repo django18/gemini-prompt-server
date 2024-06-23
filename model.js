@@ -196,12 +196,10 @@ const itineraryToJSON = (itineraryStr) => {
   return JSON.stringify(itinerary, null, 2);
 };
 
-async function run(requestPrompt) {
+export const queryGPT = async (requestPrompt) => {
   const prompt = buildPrompt(requestPrompt);
   const result = await getItinerary(prompt);
-  return itineraryToJSON(result);
-}
-
-export default {
-  run,
+  const itineraryJSON = JSON.parse(itineraryToJSON(result));
+  itineraryJSON.query = requestPrompt;
+  return itineraryJSON;
 };
