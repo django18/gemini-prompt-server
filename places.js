@@ -60,7 +60,6 @@ export const fetchImagesForItinerary = async (itinerary) => {
       promises.push(
         searchForImages(activity.description)
           .then((image) => {
-            console.log("Fetching iamge for ", activity.name);
             activity.image = image; // Assign the fetched image to the activity
           })
           .catch((error) => {
