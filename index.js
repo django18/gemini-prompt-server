@@ -9,11 +9,16 @@ import cors from "cors";
 import { queryGPT } from "./model.js";
 import { fetchImagesForItinerary } from "./places.js";
 
-app.use(cors());
+const corsOptions = {
+  origin: "https://travel-itinerary-ai.vercel.app/", // Replace with your allowed origin
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
-  res.send("Running express server on vercel");
+app.get("/", (_, res) => {
+  res.status(200).end();
 });
 
 app.post("/prompt", async (request, response) => {
