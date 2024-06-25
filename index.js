@@ -5,13 +5,19 @@ const app = express();
 import bodyParser from "body-parser";
 const port = process.env.PORT;
 
+import cors from "cors";
 import { queryGPT } from "./model.js";
 import { fetchImagesForItinerary } from "./places.js";
 
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(bodyParser.json());
 
 app.get("/", (_, res) => {
-  res.status(200).end();
+  res.send("Running vercel");
 });
 
 app.post("/prompt", async (request, response) => {
