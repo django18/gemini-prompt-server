@@ -5,16 +5,9 @@ const app = express();
 import bodyParser from "body-parser";
 const port = process.env.PORT;
 
-import cors from "cors";
 import { queryGPT } from "./model.js";
 import { fetchImagesForItinerary } from "./places.js";
 
-const corsOptions = {
-  origin: "https://travel-itinerary-ai.vercel.app/", // Replace with your allowed origin
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.get("/", (_, res) => {
