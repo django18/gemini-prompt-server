@@ -99,7 +99,7 @@ const buildPrompt = (requestPrompt) => {
   - Accommodation suggestions
   - Any additional tips or information relevant to the travel type and custom information provided
 
-  Strictly keep the response structure like this ${RESPONSE_STRUCTURE}
+  Strictly keep the response structure like this ${RESPONSE_STRUCTURE} and keep travel days into consideration for output.
   `;
 
   return prompt;
