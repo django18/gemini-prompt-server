@@ -44,13 +44,24 @@ const allowCors = (fn) => async (req, res) => {
   return await fn(req, res);
 };
 
+// app.post(
+//   "/prompt",
+//   allowCors(async (request, response) => {
+//     const promptRequest = request.body;
+//     const itineraryJSON = await queryGPT(promptRequest);
+//     const finalResponse = await fetchImagesForItinerary(itineraryJSON);
+//     response.send({ response: JSON.stringify(finalResponse) });
+//   })
+// );
+
+// Example POST endpoint
 app.post(
   "/prompt",
-  allowCors(async (request, response) => {
-    const promptRequest = request.body;
-    const itineraryJSON = await queryGPT(promptRequest);
-    const finalResponse = await fetchImagesForItinerary(itineraryJSON);
-    response.send({ response: JSON.stringify(finalResponse) });
+  allowCors((req, res) => {
+    // Simulate processing
+    setTimeout(() => {
+      res.json({ message: "CORS-enabled endpoint with response" });
+    }, 2000); // Simulated delay
   })
 );
 
