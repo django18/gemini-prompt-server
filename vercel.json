@@ -14,7 +14,7 @@
     }
   ],
   "functions": {
-    "index.js": {
+    "src/index.js": {
       "maxDuration": 25
     }
   }
