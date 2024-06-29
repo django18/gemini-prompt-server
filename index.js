@@ -69,7 +69,7 @@ app.post(
 
     const initialSaveResponse = await data.save();
     response.status(200).json(initialSaveResponse);
-    processAndStoreItinerary(initialSaveResponse._id, request.body);
+    // processAndStoreItinerary(initialSaveResponse._id, request.body);
     console.log("Finish Processing");
   })
 );
