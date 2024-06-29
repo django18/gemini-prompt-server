@@ -50,14 +50,14 @@ app.get("/", (_, res) => {
   res.send("Running vercel");
 });
 
-const allowCors = (fn) => async (req, res) => {
-  setResponseHeaders(res, req);
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-  return await fn(req, res);
-};
+// const allowCors = (fn) => async (req, res) => {
+//   setResponseHeaders(res, req);
+//   if (req.method === "OPTIONS") {
+//     res.status(200).end();
+//     return;
+//   }
+//   return await fn(req, res);
+// };
 
 const processAndStoreItinerary = async (id, rquestParams) => {
   // get response from gemini and update db with results
@@ -74,32 +74,32 @@ const processAndStoreItinerary = async (id, rquestParams) => {
 
 app.post("/prompt", async (req, res) => {
   try {
-    // const data = new ItineraryModel({
-    //   itineraryDetails: "Building Itinerary",
-    //   prompt: req.body,
-    //   hasData: false,
-    // });
-    // const initialSaveResponse = await data.save();
-    res.status(200).send({
+    const data = new ItineraryModel({
       itineraryDetails: "Building Itinerary",
       prompt: req.body,
       hasData: false,
     });
-    // processAndStoreItinerary(initialSaveResponse._id, req.body);
-    console.log("Finish Processing");
+    const initialSaveResponse = await data.save();
+    res.status(200).json(initialSaveResponse).end();
+    // res.status(200).end();
+    processAndStoreItinerary(initialSaveResponse._id, req.body);
   } catch (error) {
+    console.log({ error });
     res.status(404).send();
   }
 });
 
-app.get(
-  "/itinerary",
-  allowCors(async (req, res) => {
+app.get("/itinerary", async (req, res) => {
+  try {
     const id = req.query.id;
     const itinerary = await ItineraryModel.findById(id);
-    res.json({ hasData: itinerary.hasData, data: itinerary.itineraryDetails });
-  })
-);
+    res
+      .send({ hasData: itinerary.hasData, data: itinerary.itineraryDetails })
+      .end();
+  } catch (error) {
+    res.send({ isError: error });
+  }
+});
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
