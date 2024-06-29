@@ -15,7 +15,7 @@ import { fetchImagesForItinerary } from "./places.js";
 app.use(bodyParser.json());
 
 const setResponseHeaders = (res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", req.header.origin);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
@@ -27,7 +27,7 @@ const setResponseHeaders = (res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
 };
 
-app.options("*", (req, res) => {
+app.options("/prompt", (req, res) => {
   setResponseHeaders(res);
   res.status(200).send();
 });
@@ -60,16 +60,20 @@ const processAndStoreItinerary = async (id, rquestParams) => {
 
 app.post(
   "/prompt",
-  allowCors(async (request, response) => {
-    const data = new ItineraryModel({
+  allowCors(async (req, res) => {
+    // const data = new ItineraryModel({
+    //   itineraryDetails: "Building Itinerary",
+    //   prompt: req.body,
+    //   hasData: false,
+    // });
+
+    // const initialSaveResponse = await data.save();
+    res.send({
       itineraryDetails: "Building Itinerary",
-      prompt: request.body,
+      prompt: req.body,
       hasData: false,
     });
-
-    const initialSaveResponse = await data.save();
-    response.status(200).json(initialSaveResponse);
-    // processAndStoreItinerary(initialSaveResponse._id, request.body);
+    // processAndStoreItinerary(initialSaveResponse._id, req.body);
     console.log("Finish Processing");
   })
 );
