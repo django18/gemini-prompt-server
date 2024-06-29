@@ -8,29 +8,43 @@ const app = express();
 
 import bodyParser from "body-parser";
 const port = process.env.PORT;
-
+import cors from "cors";
 import { queryGPT } from "./model.js";
 import { fetchImagesForItinerary } from "./places.js";
 
 app.use(bodyParser.json());
 
-const setResponseHeaders = (res, req) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With, content-type"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-};
+// Middleware to enable CORS
+app.use(cors());
+app.options("*", cors()); // Enable preflight requests for all routes
 
-app.options("/prompt", (req, res) => {
-  setResponseHeaders(res, req);
-  res.status(200).send();
-});
+// Alternatively, configure CORS with specific options
+app.use(
+  cors({
+    origin: "*", // Allow only your specific origin
+    methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
+    allowedHeaders: "X-Requested-With,Content-Type",
+    credentials: true,
+  })
+);
+
+// const setResponseHeaders = (res, req) => {
+//   res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+//   res.setHeader(
+//     "Access-Control-Allow-Methods",
+//     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+//   );
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "X-Requested-With, content-type"
+//   );
+//   res.setHeader("Access-Control-Allow-Credentials", true);
+// };
+
+// app.options("/prompt", (req, res) => {
+//   setResponseHeaders(res, req);
+//   res.status(200).send();
+// });
 
 app.get("/", (_, res) => {
   res.send("Running vercel");
@@ -58,25 +72,25 @@ const processAndStoreItinerary = async (id, rquestParams) => {
   await ItineraryModel.findByIdAndUpdate(id, updateData, options);
 };
 
-app.post(
-  "/prompt",
-  allowCors(async (req, res) => {
+app.post("/prompt", async (req, res) => {
+  try {
     // const data = new ItineraryModel({
     //   itineraryDetails: "Building Itinerary",
     //   prompt: req.body,
     //   hasData: false,
     // });
-
     // const initialSaveResponse = await data.save();
-    res.send({
+    res.status(200).send({
       itineraryDetails: "Building Itinerary",
       prompt: req.body,
       hasData: false,
     });
     // processAndStoreItinerary(initialSaveResponse._id, req.body);
     console.log("Finish Processing");
-  })
-);
+  } catch (error) {
+    res.status(404).send();
+  }
+});
 
 app.get(
   "/itinerary",
