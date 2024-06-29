@@ -14,16 +14,21 @@ import { fetchImagesForItinerary } from "./places.js";
 
 app.use(bodyParser.json());
 
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+const setResponseHeaders = (res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+    "X-Requested-With, content-type"
   );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+};
+
+app.options("*", (req, res) => {
+  setResponseHeaders(res);
   res.status(200).send();
 });
 
@@ -32,20 +37,25 @@ app.get("/", (_, res) => {
 });
 
 const allowCors = (fn) => async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-  );
+  setResponseHeaders(res);
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
   }
   return await fn(req, res);
+};
+
+const processAndStoreItinerary = async (id, rquestParams) => {
+  // get response from gemini and update db with results
+  const promptRequest = rquestParams;
+  const itineraryJSON = await queryGPT(promptRequest);
+  const itineraryWithImages = await fetchImagesForItinerary(itineraryJSON);
+  const updateData = {
+    itineraryDetails: JSON.stringify(itineraryWithImages),
+    hasData: true,
+  };
+  const options = { new: true };
+  await ItineraryModel.findByIdAndUpdate(id, updateData, options);
 };
 
 app.post(
@@ -59,21 +69,8 @@ app.post(
 
     const initialSaveResponse = await data.save();
     response.status(200).json(initialSaveResponse);
-
-    // get response from gemini and update db with results
-    const promptRequest = request.body;
-    const itineraryJSON = await queryGPT(promptRequest);
-    const itineraryWithImages = await fetchImagesForItinerary(itineraryJSON);
-    const updateData = {
-      itineraryDetails: JSON.stringify(itineraryWithImages),
-      hasData: true,
-    };
-    const options = { new: true };
-    await ItineraryModel.findByIdAndUpdate(
-      initialSaveResponse._id,
-      updateData,
-      options
-    );
+    processAndStoreItinerary(initialSaveResponse._id, request.body);
+    console.log("Finish Processing");
   })
 );
 

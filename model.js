@@ -197,9 +197,15 @@ const itineraryToJSON = (itineraryStr) => {
 };
 
 export const queryGPT = async (requestPrompt) => {
-  const prompt = buildPrompt(requestPrompt);
-  const result = await getItinerary(prompt);
-  const itineraryJSON = JSON.parse(itineraryToJSON(result));
-  itineraryJSON.query = requestPrompt;
-  return itineraryJSON;
+  return new Promise(async (res, rej) => {
+    try {
+      const prompt = buildPrompt(requestPrompt);
+      const result = await getItinerary(prompt);
+      const itineraryJSON = JSON.parse(itineraryToJSON(result));
+      itineraryJSON.query = requestPrompt;
+      res(itineraryJSON);
+    } catch (error) {
+      rej(error);
+    }
+  });
 };
