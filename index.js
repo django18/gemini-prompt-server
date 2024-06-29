@@ -8,42 +8,29 @@ const app = express();
 
 import bodyParser from "body-parser";
 const port = process.env.PORT;
-
+import cors from "cors";
 import { queryGPT } from "./model.js";
 import { fetchImagesForItinerary } from "./places.js";
 
 app.use(bodyParser.json());
 
-const setResponseHeaders = (res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.header.origin);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With, content-type"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-};
+// Middleware to enable CORS
+app.use(cors());
+app.options("*", cors()); // Enable preflight requests for all routes
 
-app.options("/prompt", (req, res) => {
-  setResponseHeaders(res);
-  res.status(200).send();
-});
+// Alternatively, configure CORS with specific options
+app.use(
+  cors({
+    origin: "*", // Allow only your specific origin
+    methods: "GET,POST,OPTIONS,PUT,PATCH,DELETE",
+    allowedHeaders: "X-Requested-With,Content-Type",
+    credentials: true,
+  })
+);
 
 app.get("/", (_, res) => {
   res.send("Running vercel");
 });
-
-const allowCors = (fn) => async (req, res) => {
-  setResponseHeaders(res);
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-  return await fn(req, res);
-};
 
 const processAndStoreItinerary = async (id, rquestParams) => {
   // get response from gemini and update db with results
@@ -58,34 +45,33 @@ const processAndStoreItinerary = async (id, rquestParams) => {
   await ItineraryModel.findByIdAndUpdate(id, updateData, options);
 };
 
-app.post(
-  "/prompt",
-  allowCors(async (req, res) => {
-    // const data = new ItineraryModel({
-    //   itineraryDetails: "Building Itinerary",
-    //   prompt: req.body,
-    //   hasData: false,
-    // });
-
-    // const initialSaveResponse = await data.save();
-    res.send({
+app.post("/prompt", async (req, res) => {
+  try {
+    const data = new ItineraryModel({
       itineraryDetails: "Building Itinerary",
       prompt: req.body,
       hasData: false,
     });
-    // processAndStoreItinerary(initialSaveResponse._id, req.body);
-    console.log("Finish Processing");
-  })
-);
+    const initialSaveResponse = await data.save();
+    res.status(200).json(initialSaveResponse).end();
+    processAndStoreItinerary(initialSaveResponse._id, req.body);
+  } catch (error) {
+    console.log({ error });
+    res.status(404).send();
+  }
+});
 
-app.get(
-  "/itinerary",
-  allowCors(async (req, res) => {
+app.get("/itinerary", async (req, res) => {
+  try {
     const id = req.query.id;
     const itinerary = await ItineraryModel.findById(id);
-    res.json({ hasData: itinerary.hasData, data: itinerary.itineraryDetails });
-  })
-);
+    res
+      .send({ hasData: itinerary.hasData, data: itinerary.itineraryDetails })
+      .end();
+  } catch (error) {
+    res.send({ isError: error });
+  }
+});
 
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
