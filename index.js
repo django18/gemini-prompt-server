@@ -14,8 +14,8 @@ import { fetchImagesForItinerary } from "./places.js";
 
 app.use(bodyParser.json());
 
-const setResponseHeaders = (res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.header.origin);
+const setResponseHeaders = (res, req) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
@@ -28,7 +28,7 @@ const setResponseHeaders = (res) => {
 };
 
 app.options("/prompt", (req, res) => {
-  setResponseHeaders(res);
+  setResponseHeaders(res, req);
   res.status(200).send();
 });
 
@@ -37,7 +37,7 @@ app.get("/", (_, res) => {
 });
 
 const allowCors = (fn) => async (req, res) => {
-  setResponseHeaders(res);
+  setResponseHeaders(res, req);
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
