@@ -17,7 +17,6 @@ app.use(bodyParser.json());
 app.use(cors());
 app.options("*", cors()); // Enable preflight requests for all routes
 
-// Alternatively, configure CORS with specific options
 app.use(
   cors({
     origin: "*", // Allow only your specific origin
