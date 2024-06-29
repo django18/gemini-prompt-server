@@ -1,6 +1,5 @@
 import dotenv from "dotenv/config";
 import express from "express";
-import { v4 as uuidv4 } from "uuid";
 import db from "./db.js";
 import ItineraryModel from "./itinerary.js";
 
