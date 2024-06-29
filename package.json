@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
+    "build": "echo 'Nothing to build'",
+    "deploy": "vercel --prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "avinash",
